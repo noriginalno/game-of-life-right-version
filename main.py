@@ -1,12 +1,13 @@
 import pygame
 from numpy.random import binomial as rnd
 from get_new import get_next_generation
+from information_dashboard import InformationWindow
 
 
 # Гиперпараметры на игру
-SIZE = 8
-AMOUNT_WIDTH = 150
-AMOUNT_HEIGHT = 100
+SIZE = 20
+AMOUNT_WIDTH = 30
+AMOUNT_HEIGHT = 20
 WIDTH = SIZE * AMOUNT_WIDTH
 HEIGHT = SIZE * AMOUNT_HEIGHT
 FPS = 30
@@ -27,7 +28,6 @@ class Cell(pygame.sprite.Sprite):
         self.image = pygame.Surface((SIZE - 1, SIZE - 1))
         self.image.fill(colour)
         self.rect = self.image.get_rect()
-        self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = x, y
 
     def update(self):
@@ -38,6 +38,7 @@ class Cell(pygame.sprite.Sprite):
 # Инициализируем игру
 pygame.init()
 pygame.mixer.init()
+pygame.font.init()
 click_sound = pygame.mixer.Sound('klich.ogg')
 pygame.mixer.music.load('gachi.mp3')
 pygame.mixer.music.play(-1)
@@ -46,6 +47,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("My Game")
 clock = pygame.time.Clock()
 cells = pygame.sprite.Group()
+textbar = pygame.sprite.GroupSingle()
 paused = True
 
 # Создаём поле
@@ -53,6 +55,9 @@ for i in range(len(fld)):
     for j in range(len(fld[0])):
         cell = Cell(COLOUR[int(6 * (SIZE * i / HEIGHT))], SIZE*j, SIZE*i)
         cells.add(cell)
+
+bar = InformationWindow(screen=screen)
+textbar.add(bar)
 
 # Запускаем игровой цикл
 running = True
@@ -99,15 +104,27 @@ while running:
             elif event.button == 3:
                 fld[event.pos[1] // SIZE][event.pos[0] // SIZE] = 0
 
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_i:
+            bar.is_drawn = not bar.is_drawn
+
     # Обновление
     if not paused:
         get_next_generation(fld)
 
     cells.update()
+    textbar.update()
 
     # Визуализация (сборка)
     screen.fill(BLACK)
     cells.draw(screen)
+    screen.blit(bar.image, (0, 0))
+    screen.blit(bar.text0, (0, 0))
+    screen.blit(bar.text1, (0, 20))
+    screen.blit(bar.text2, (0, 40))
+    screen.blit(bar.text3, (0, 60))
+    screen.blit(bar.text4, (0, 80))
+    screen.blit(bar.text5, (0, 100))
+    screen.blit(bar.text6, (0, 120))
     pygame.display.flip()
 
 
